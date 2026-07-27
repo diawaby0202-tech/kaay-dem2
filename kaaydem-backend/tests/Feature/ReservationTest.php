@@ -87,3 +87,34 @@ it('restitue les places quand une réservation est refusée', function () {
 
     expect($trajet->fresh()->places_disponibles)->toBe(4);
 });
+
+it('permet à un passager de réserver à nouveau le même trajet après un refus', function () {
+    $trajet = creerTrajetPublie(4);
+    $passager = User::factory()->create();
+    Sanctum::actingAs($passager);
+
+    // Première demande, refusée par le conducteur
+    $premiereReservation = $this->postJson("/api/v1/trips/{$trajet->id}/reservations", ['nombre_places' => 1])
+        ->json('data.id');
+
+    Sanctum::actingAs($trajet->driver);
+    $this->patchJson("/api/v1/reservations/{$premiereReservation}/refuse")->assertStatus(200);
+
+    // Le même passager doit pouvoir retenter sur le même trajet
+    Sanctum::actingAs($passager);
+    $this->postJson("/api/v1/trips/{$trajet->id}/reservations", ['nombre_places' => 1])
+        ->assertStatus(201);
+});
+
+it('empêche un passager d\'avoir deux réservations actives sur le même trajet', function () {
+    $trajet = creerTrajetPublie(4);
+    $passager = User::factory()->create();
+    Sanctum::actingAs($passager);
+
+    $this->postJson("/api/v1/trips/{$trajet->id}/reservations", ['nombre_places' => 1])
+        ->assertStatus(201);
+
+    // Toujours en attente : une seconde demande sur le même trajet doit être refusée
+    $this->postJson("/api/v1/trips/{$trajet->id}/reservations", ['nombre_places' => 1])
+        ->assertStatus(409);
+});
