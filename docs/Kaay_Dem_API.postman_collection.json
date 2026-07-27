@@ -1,0 +1,376 @@
+{
+  "info": {
+    "name": "Kaay Dem ! — API",
+    "description": "Collection Postman pour l'API REST de la plateforme de covoiturage étudiant Kaay Dem !. Préfixe : /api/v1. Authentification : Laravel Sanctum (tokens Bearer).\n\n**Astuce** : lancez d'abord la requête \"Connexion\" — le token est automatiquement enregistré dans la variable {{token}} et réutilisé pour toutes les routes protégées suivantes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "trip_id", "value": "1", "type": "string" },
+    { "key": "reservation_id", "value": "1", "type": "string" },
+    { "key": "user_id", "value": "1", "type": "string" },
+    { "key": "driver_profile_id", "value": "1", "type": "string" },
+    { "key": "report_id", "value": "1", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "1. Authentification",
+      "item": [
+        {
+          "name": "Inscription",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/register", "host": ["{{base_url}}"], "path": ["register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aminata Diop\",\n  \"email\": \"aminata@esmt.sn\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"telephone\": \"771234567\",\n  \"campus\": \"ESMT Dakar\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Connexion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Enregistre automatiquement le token pour les requêtes suivantes",
+                  "const data = pm.response.json();",
+                  "if (data.token) {",
+                  "    pm.collectionVariables.set('token', data.token);",
+                  "    console.log('Token enregistré :', data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@kaaydem.sn\",\n  \"password\": \"password\"\n}"
+            },
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Déconnexion",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{base_url}}/logout", "host": ["{{base_url}}"], "path": ["logout"] }
+          }
+        },
+        {
+          "name": "Mon profil",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/me", "host": ["{{base_url}}"], "path": ["me"] }
+          }
+        },
+        {
+          "name": "Modifier mon profil",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/me", "host": ["{{base_url}}"], "path": ["me"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telephone\": \"770001122\",\n  \"campus\": \"ISEP Diamniadio\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Statut conducteur",
+      "item": [
+        {
+          "name": "Demander le statut conducteur",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/driver-requests", "host": ["{{base_url}}"], "path": ["driver-requests"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numero_permis\": \"SN-123456789\",\n  \"vehicule_marque\": \"Toyota\",\n  \"vehicule_modele\": \"Corolla\",\n  \"immatriculation\": \"DK-1234-AB\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Trajets",
+      "item": [
+        {
+          "name": "Rechercher des trajets (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/trips?ville_depart=Dakar&prix_max=3000&par_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["trips"],
+              "query": [
+                { "key": "ville_depart", "value": "Dakar" },
+                { "key": "ville_arrivee", "value": "", "disabled": true },
+                { "key": "date", "value": "", "disabled": true },
+                { "key": "prix_max", "value": "3000" },
+                { "key": "places_min", "value": "", "disabled": true },
+                { "key": "par_page", "value": "10" }
+              ]
+            },
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Détail d'un trajet (public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/trips/{{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["trips", "{{trip_id}}"]
+            },
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Publier un trajet",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/trips", "host": ["{{base_url}}"], "path": ["trips"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ville_depart\": \"Dakar\",\n  \"ville_arrivee\": \"Diamniadio\",\n  \"date_heure_depart\": \"2026-08-15 08:00:00\",\n  \"places_totales\": 4,\n  \"prix_par_place\": 1500\n}"
+            }
+          }
+        },
+        {
+          "name": "Modifier un trajet",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/trips/{{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["trips", "{{trip_id}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prix_par_place\": 1800\n}"
+            }
+          }
+        },
+        {
+          "name": "Annuler un trajet",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/trips/{{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["trips", "{{trip_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Clôturer un trajet",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/trips/{{trip_id}}/close",
+              "host": ["{{base_url}}"],
+              "path": ["trips", "{{trip_id}}", "close"]
+            }
+          }
+        },
+        {
+          "name": "Mes trajets publiés",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/me/trips", "host": ["{{base_url}}"], "path": ["me", "trips"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Réservations",
+      "item": [
+        {
+          "name": "Réserver un trajet",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/trips/{{trip_id}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["trips", "{{trip_id}}", "reservations"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_places\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Accepter une réservation",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/accept",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "accept"]
+            }
+          }
+        },
+        {
+          "name": "Refuser une réservation",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/refuse",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "refuse"]
+            }
+          }
+        },
+        {
+          "name": "Annuler ma réservation",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Mes réservations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/me/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["me", "reservations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Évaluations",
+      "item": [
+        {
+          "name": "Laisser un avis",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/review",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "review"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": 5,\n  \"commentaire\": \"Super trajet, conducteur ponctuel !\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Administration",
+      "item": [
+        {
+          "name": "Lister les utilisateurs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/admin/users", "host": ["{{base_url}}"], "path": ["admin", "users"] }
+          }
+        },
+        {
+          "name": "Activer/désactiver un utilisateur",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", "{{user_id}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Lister les demandes conducteur",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/admin/driver-requests",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "driver-requests"]
+            }
+          }
+        },
+        {
+          "name": "Valider/rejeter une demande conducteur",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/admin/driver-requests/{{driver_profile_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "driver-requests", "{{driver_profile_id}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut_validation\": \"valide\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Lister les signalements",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/admin/reports", "host": ["{{base_url}}"], "path": ["admin", "reports"] }
+          }
+        },
+        {
+          "name": "Traiter un signalement",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/admin/reports/{{report_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "reports", "{{report_id}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut_traitement\": \"traite\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Statistiques",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/admin/stats", "host": ["{{base_url}}"], "path": ["admin", "stats"] }
+          }
+        }
+      ]
+    }
+  ]
+}

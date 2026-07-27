@@ -1,0 +1,25 @@
+# Backend Laravel
+kaaydem-backend/vendor/
+kaaydem-backend/node_modules/
+kaaydem-backend/.env
+kaaydem-backend/database/database.sqlite
+kaaydem-backend/storage/*.key
+kaaydem-backend/storage/app/public/*
+!kaaydem-backend/storage/app/public/.gitkeep
+kaaydem-backend/storage/framework/cache/*
+kaaydem-backend/storage/framework/sessions/*
+kaaydem-backend/storage/framework/views/*
+kaaydem-backend/storage/logs/*.log
+kaaydem-backend/bootstrap/cache/*.php
+kaaydem-backend/public/storage
+
+# Frontend
+kaaydem-frontend/node_modules/
+kaaydem-frontend/dist/
+kaaydem-frontend/.env
+
+# Système / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

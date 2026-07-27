@@ -1,0 +1,65 @@
+name: CI
+
+# Se déclenche à chaque push et à chaque pull request, sur toutes les branches
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  backend-tests:
+    name: Tests backend (Laravel / Pest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kaaydem-backend
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, sqlite3, pdo_sqlite
+          coverage: none
+
+      - name: Installer les dépendances Composer
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Préparer l'environnement de test
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Lancer les tests Pest
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+        run: php artisan test
+
+  frontend-build:
+    name: Build frontend (React / Vite)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kaaydem-frontend
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: kaaydem-frontend/package-lock.json
+
+      - name: Installer les dépendances npm
+        run: npm ci
+
+      - name: Vérifier que le build de production réussit
+        run: npm run build

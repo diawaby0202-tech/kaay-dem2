@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+@import "tailwindcss";
+
+/*
+  Identité visuelle "Kaay Dem !" v2 — thème "carrosserie vive", pensé
+  pour être visible et accrocheur : un orange saturé façon carrosserie
+  de car rapide en couleur pleine (pas juste en filet décoratif), sur
+  fond blanc franc, avec une typographie ronde et épaisse.
+
+  - nuit     : texte / éléments sombres à forte lisibilité
+  - sable    : fond clair principal (blanc franc, plus de crème)
+  - or       : couleur signature — orange vif, header + CTA
+  - savane   : vert vif (validation, statuts positifs)
+  - piment   : rouge vif (erreurs, annulations)
+*/
+@theme {
+  --color-nuit: #16161d;
+  --color-nuit-clair: #2a2a38;
+  --color-sable: #ffffff;
+  --color-sable-fonce: #ffedd9;
+  --color-or: #ff7a1a;
+  --color-or-fonce: #e85d00;
+  --color-savane: #10b87c;
+  --color-savane-clair: #dcfaf0;
+  --color-piment: #ff3b3b;
+  --color-piment-clair: #ffe3e3;
+
+  --font-affiche: 'Baloo 2', sans-serif;
+  --font-texte: 'Plus Jakarta Sans', sans-serif;
+  --font-donnee: 'IBM Plex Mono', monospace;
+}
+
+body {
+  background-color: var(--color-sable);
+  font-family: var(--font-texte);
+  color: var(--color-nuit);
+}
+
+/*
+  .talon-billet : bord perforé façon ticket de car rapide déchiré.
+  Une rangée de demi-cercles évidés le long du bord droit d'une carte,
+  surmontant une ligne pointillée verticale.
+*/
+.talon-billet {
+  position: relative;
+}
+.talon-billet::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  border-right: 2px dashed var(--color-sable-fonce);
+  background-image: radial-gradient(
+      circle 5px,
+      var(--color-sable) 5px,
+      transparent 5.5px
+    ),
+    radial-gradient(circle 5px, var(--color-sable) 5px, transparent 5.5px);
+  background-position:
+    right -5px top -5px,
+    right -5px bottom -5px;
+  background-repeat: no-repeat;
+}
+
