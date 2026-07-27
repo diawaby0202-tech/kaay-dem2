@@ -51,6 +51,19 @@ class ReservationService
             throw new PlacesInsuffisantesException;
         }
 
+        // Un passager ne peut pas avoir deux réservations ACTIVES sur le
+        // même trajet en même temps — mais peut retenter après un refus
+        // ou une annulation (contrairement à l'ancienne contrainte SQL
+        // unique(trip_id, passenger_id), qui bloquait indéfiniment).
+        $dejaActive = Reservation::where('trip_id', $trajet->id)
+            ->where('passenger_id', $passager->id)
+            ->whereIn('statut', [ReservationStatus::EnAttente, ReservationStatus::Confirmee])
+            ->exists();
+
+        if ($dejaActive) {
+            throw new TransitionInvalideException('Vous avez déjà une réservation active sur ce trajet.');
+        }
+
         $cout = $nombrePlaces * $trajet->prix_par_place;
 
         if ($passager->solde < $cout) {
