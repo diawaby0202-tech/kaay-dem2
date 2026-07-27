@@ -29,6 +29,12 @@ class UserFactory extends Factory
             'photo' => null,
             'is_admin' => false,
             'is_active' => true,
+            // Portefeuille virtuel (paiement simulé) : la colonne a un défaut
+            // de 10000 en base, mais Eloquent ne le reflète pas sur l'objet
+            // en mémoire juste après un create() — on le fixe explicitement
+            // ici pour que $user->solde soit toujours correct, y compris
+            // dans les tests qui réutilisent l'instance sans la recharger.
+            'solde' => 10000,
         ];
     }
 

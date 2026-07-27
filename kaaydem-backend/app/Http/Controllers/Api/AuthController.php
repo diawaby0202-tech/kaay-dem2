@@ -26,6 +26,13 @@ class AuthController extends Controller
             'campus' => $request->campus,
         ]);
 
+        // Recharge le modèle depuis la base : le solde par défaut du
+        // portefeuille virtuel (10000) est appliqué côté base de données,
+        // mais Eloquent ne le reflète pas automatiquement sur l'objet en
+        // mémoire juste après create() — sans ce refresh(), la réponse
+        // d'inscription afficherait un solde vide.
+        $user->refresh();
+
         // Un seul token par connexion : simple pour un projet de ce type.
         // Sanctum permet d'en créer plusieurs (un par appareil) si besoin.
         $token = $user->createToken('api-token')->plainTextToken;
